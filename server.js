@@ -92,6 +92,21 @@ io.on("connection", (socket) => {
     });
   });
 
+  // Relay full game-state snapshots to everyone in the room
+socket.on("state_sync", (payload) => {
+  try {
+    const code = String(payload?.code || "").trim().toUpperCase();
+    const state = payload?.state;
+    if (!code || !state) return;
+    if (!rooms.has(code)) return;
+
+    io.to(code).emit("state_sync", { state });
+  } catch (e) {
+    console.error("state_sync error", e);
+  }
+});
+
+
   // Gameplay action relay (Stage 2)
   socket.on("action", ({ code, action }) => {
     if (!rooms.has(code)) return;
