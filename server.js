@@ -92,15 +92,16 @@ io.on("connection", (socket) => {
     });
   });
 
-  // Relay full game-state snapshots to everyone in the room
+// Relay JSON-safe game-state snapshots to everyone else in the room
 socket.on("state_sync", (payload) => {
   try {
     const code = String(payload?.code || "").trim().toUpperCase();
-    const state = payload?.state;
-    if (!code || !state) return;
+    const json = payload?.json;
+    if (!code || typeof json !== "string") return;
     if (!rooms.has(code)) return;
 
-    io.to(code).emit("state_sync", { state });
+    // Relay to everyone else in the room (not back to sender)
+    socket.to(code).emit("state_sync", { json });
   } catch (e) {
     console.error("state_sync error", e);
   }
