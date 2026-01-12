@@ -97,6 +97,8 @@ socket.on("state_sync", (payload) => {
   try {
     const code = String(payload?.code || "").trim().toUpperCase();
     const json = payload?.json;
+    console.log("state_sync in", code, "jsonLen", typeof json === "string" ? json.length : "NOT_STRING");
+
     if (!code || typeof json !== "string") return;
     if (!rooms.has(code)) return;
 
